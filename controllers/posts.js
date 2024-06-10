@@ -8,10 +8,10 @@ const getUserId = require("../utils/getUserInfo");
 const store = async (req, res) => {
 
     const { title, image, content, categoryId, tags } = req.body
-    const { email } = req.user
     try {
 
         //cerco lo userId associato all'email
+        const { email } = req.user
         const userId = await getUserId(email)
 
         // aggiungo un componente che si occuperà di creare uno slug unico
@@ -153,6 +153,20 @@ const update = async (req, res) => {
     const slugToChange = req.params.slug
 
     try {
+
+        // cerco il post da cambiare e prendo il suo userId
+        const postToChange = await prisma.post.findUnique({ where: { slug: slugToChange } });
+        const postToChangeUserID = postToChange.userId
+
+        //cerco lo userId associato all'email
+        const { email } = req.user
+        const loggedUserId = await getUserId(email)
+
+        //! verifico che lo userId del post da cambiare corrisponda allo userId dell'utente loggato
+        if (loggedUserId != postToChangeUserID) {
+            throw new Error("Non sei autorizzato a modificare questo post", 405)
+        }
+
         const { title, slug, image, content, categoryId, tags, userId } = req.body
 
         const data = {
@@ -183,6 +197,19 @@ const destroy = async (req, res) => {
 
     try {
         const slug = req.params.slug
+
+        // cerco il post da cancellare e prendo il suo userId
+        const postToChange = await prisma.post.findUnique({ where: { slug: slug } });
+        const postToChangeUserID = postToChange.userId
+
+        //cerco lo userId associato all'email
+        const { email } = req.user
+        const loggedUserId = await getUserId(email)
+
+        //! verifico che lo userId del post da cambiare corrisponda allo userId dell'utente loggato
+        if (loggedUserId != postToChangeUserID) {
+            throw new Error("Non sei autorizzato a cancellare questo post", 405)
+        }
 
         await prisma.post.delete({ where: { slug } })
         res.json(`Post con slug ${slug} eliminato con successo.`);
