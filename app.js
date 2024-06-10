@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+require("dotenv").config();
+const port = 3000;
 
 //import dei middlewares,routers...
 const routeNotFound = require('./middlewares/routeNotFound')
@@ -8,9 +10,11 @@ const postsRouter = require("./routers/posts.js")
 const categoriesRouter = require("./routers/categories.js")
 const tagsRouter = require("./routers/tags.js")
 const userAuth = require("./routers/auth.js")
+// import del modulo CORS
+const cors = require("cors");
 
-require("dotenv").config();
-const port = 3000;
+// utilizzo il cors per consetire a tutti l'accesso all'API (è possibile customizzare gli accessi)
+app.use(cors())
 
 app.use(express.json());
 
