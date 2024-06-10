@@ -7,13 +7,14 @@ const errorHandler = require('./middlewares/errorHandler')
 const postsRouter = require("./routers/posts.js")
 const categoriesRouter = require("./routers/categories.js")
 const tagsRouter = require("./routers/tags.js")
-
+const userAuth = require("./routers/auth.js")
 
 require("dotenv").config();
 const port = 3000;
 
 app.use(express.json());
 
+app.use("/auth", userAuth);
 
 app.use('/posts', postsRouter);
 app.use('/categories', categoriesRouter);
