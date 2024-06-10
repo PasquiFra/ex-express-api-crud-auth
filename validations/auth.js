@@ -53,10 +53,6 @@ const register = {
     },
     password: {
         in: ['body'],
-        isString: {
-            errorMessage: "La password dev\'essere una stringa",
-            bail: true
-        },
         notEmpty: {
             errorMessage: "La password non può essere vuota",
             bail: true
@@ -65,11 +61,36 @@ const register = {
             errorMessage: "La password deve avere almeno 6 caratteri",
             options: { min: 6 }
         },
+        isString: {
+            errorMessage: "La password dev\'essere una stringa",
+            bail: true
+        }
     }
 }
 
 const login = {
-
+    email: {
+        in: ['body'],
+        notEmpty: {
+            errorMessage: "L'email non può essere vuota",
+            bail: true
+        },
+        isEmail: {
+            errorMessage: "L'email deve avere un formato valido",
+            bail: true
+        }
+    },
+    password: {
+        in: ['body'],
+        notEmpty: {
+            errorMessage: "La password non può essere vuota",
+            bail: true
+        },
+        isString: {
+            errorMessage: "La password dev\'essere una stringa",
+            bail: true
+        }
+    }
 }
 
 module.exports = {
