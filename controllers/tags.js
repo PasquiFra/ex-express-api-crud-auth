@@ -6,8 +6,6 @@ const errorHandler = require('../middlewares/errorHandler')
 
 const store = async (req, res) => {
 
-    console.log("entrato tags 1")
-
     const { name } = req.body;
 
     const data = { name }
@@ -23,8 +21,6 @@ const store = async (req, res) => {
 
 const index = async (req, res) => {
 
-    console.log("entrato tags 2")
-
     try {
         const tags = await prisma.tag.findMany();
         res.json(tags);
@@ -35,13 +31,12 @@ const index = async (req, res) => {
 
 const show = async (req, res) => {
     const tagToCheck = req.params.name
-    console.log(tagToCheck)
 
     try {
         const tag = await prisma.tag.findMany({
             where: { name: tagToCheck }
         })
-        console.log(tag)
+
         res.json(tag);
     } catch (err) {
         errorHandler(err, req, res);

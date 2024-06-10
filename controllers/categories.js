@@ -21,8 +21,6 @@ const store = async (req, res) => {
 
 const index = async (req, res) => {
 
-    console.log("entrato categories 2")
-
     try {
         const categories = await prisma.category.findMany();
         res.json(categories);

@@ -1,36 +1,34 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const errorHandler = require('../middlewares/errorHandler')
+const errorHandler = require('../middlewares/errorHandler');
+const slugger = require("../middlewares/slugger");
 
 const store = async (req, res) => {
 
-    const { title, slug, image, content, categoryId, tags } = req.body
-
-    const data = {
-        title,
-        slug,
-        image,
-        content,
-        published: req.body.published ? true : false,
-        tags: {
-            connect: tags.map(id => ({ id }))
-        }
-    }
-    if (categoryId) {
-        data.categoryId = categoryId;
-    }
-    console.log(data)
-
+    const { title, image, content, categoryId, tags } = req.body
     try {
-        const checkSlug = await prisma.post.findUnique({
-            where: { slug: slug }
-        });
-        if (checkSlug) {
-            throw new Error(`Esiste già un post con slug ${slug}`)
+        // aggiungo un componente che si occuperà di creare uno slug unico
+        const slug = await slugger(title)
+
+        const data = {
+            title,
+            slug,
+            image,
+            content,
+            published: req.body.published ? true : false,
+            tags: {
+                connect: tags.map(id => ({ id }))
+            }
         }
+        if (categoryId) {
+            data.categoryId = categoryId;
+        }
+
         const post = await prisma.post.create({ data })
+
         res.status(200).send(post);
+
     } catch (err) {
         errorHandler(err, req, res);
     }
@@ -175,10 +173,9 @@ const update = async (req, res) => {
 
 const destroy = async (req, res) => {
 
-    console.log("entrato posts 5")
-
     try {
         const slug = req.params.slug
+
         await prisma.post.delete({ where: { slug } })
         res.json(`Post con slug ${slug} eliminato con successo.`);
     }
