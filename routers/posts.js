@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { loggedUsers } = require("../middlewares/authUsers.js");
 
 const {
     store,
@@ -14,6 +15,8 @@ const {
 const validator = require('../middlewares/validator.js');
 const { postData } = require('../validations/posts.js')
 const { slugCheck } = require('../validations/generics.js')
+
+router.use(loggedUsers);
 
 router.post('/', validator(postData), store);
 router.get('/', index);

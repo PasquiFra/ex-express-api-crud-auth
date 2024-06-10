@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const errorHandler = require('../middlewares/errorHandler');
-const slugger = require("../middlewares/slugger");
+const slugger = require("../utils/slugger");
 
 const store = async (req, res) => {
 
