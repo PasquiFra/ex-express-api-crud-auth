@@ -13,7 +13,7 @@ const slugger = async (title, posts) => {
         if (!baseSlug) {
             const err = new Error('Il titolo non è corretto o non contiene un numero minimo di caratteri');
             err.status = 401;
-            return sendError(err);
+            return errorHandler(err, req, res);;
         }
 
         const slugs = posts.map(post => post.slug);

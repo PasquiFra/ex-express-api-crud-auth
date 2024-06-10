@@ -3,11 +3,17 @@ const prisma = new PrismaClient();
 
 const errorHandler = require('../middlewares/errorHandler');
 const slugger = require("../utils/slugger");
+const getUserId = require("../utils/getUserInfo");
 
 const store = async (req, res) => {
 
     const { title, image, content, categoryId, tags } = req.body
+    const { email } = req.user
     try {
+
+        //cerco lo userId associato all'email
+        const userId = await getUserId(email)
+
         // aggiungo un componente che si occuperà di creare uno slug unico
         const slug = await slugger(title)
 
@@ -19,7 +25,8 @@ const store = async (req, res) => {
             published: req.body.published ? true : false,
             tags: {
                 connect: tags.map(id => ({ id }))
-            }
+            },
+            userId: userId
         }
         if (categoryId) {
             data.categoryId = categoryId;

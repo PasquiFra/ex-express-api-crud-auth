@@ -16,7 +16,7 @@ const validator = require('../middlewares/validator.js');
 const { postData } = require('../validations/posts.js')
 const { slugCheck } = require('../validations/generics.js')
 
-router.use(loggedUsers);
+router.use('/', loggedUsers);
 
 router.post('/', validator(postData), store);
 router.get('/', index);

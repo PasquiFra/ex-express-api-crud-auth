@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+const errorHandler = require('../middlewares/errorHandler');
+
 const loggedUsers = (req, res, next) => {
 
     // recupero il token di autenticazione dalla request
@@ -15,11 +17,11 @@ const loggedUsers = (req, res, next) => {
 
     //verifico che il token sia valido hashandolo con la mia private key
     //? Il metodo verify mi restituirà il payload del token, contenente i dati codificati nel token al momento della sua creazione.
-    jwt.verify(token, process.env.AUTH_KEY, (err, payload) => {
+    jwt.verify(token, process.env.JWT_KEY, (err, payload) => {
         if (err) {
             err.message == "jwt expired" ? err.message = "token scaduto" : err.message = "Autenticazione fallita, effettua il login"
             err.status = 401;
-            return errorDetector(err, req, res, next)
+            return errorHandler(err, req, res, next)
         }
         //se l'user che ricevo nella decodifica corrisponde lo assegno nella request
         req.user = payload;
@@ -29,4 +31,4 @@ const loggedUsers = (req, res, next) => {
 
 }
 
-module.exports = loggedUsers
+module.exports = { loggedUsers }
