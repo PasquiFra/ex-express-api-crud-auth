@@ -153,7 +153,7 @@ const update = async (req, res) => {
     const slugToChange = req.params.slug
 
     try {
-        const { title, slug, image, content, categoryId, tags } = req.body
+        const { title, slug, image, content, categoryId, tags, userId } = req.body
 
         const data = {
             title,
@@ -163,7 +163,8 @@ const update = async (req, res) => {
             published: req.body.published ? true : false,
             tags: {
                 connect: tags.map(id => ({ id }))
-            }
+            },
+            userId
         }
         if (categoryId) {
             data.categoryId = categoryId;
