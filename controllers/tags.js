@@ -11,8 +11,43 @@ const store = async (req, res) => {
     const data = { name }
 
     try {
-        const tag = await prisma.tag.create({ data });
-        res.status(200).send(tag);
+        const existingTag = await prisma.tag.findUnique({
+            where: {
+                name: data.name
+            }
+        });
+        if (!existingTag) {
+            const generatedTag = await prisma.tag.create({ data });
+            res.status(200).send(generatedTag);
+        } else {
+            throw new Error("Tag già esistente")
+        }
+    } catch (err) {
+        errorHandler(err, req, res);
+    }
+
+}
+
+const storeFromPost = async (req, res, tags) => {
+
+    try {
+        const tagIds = [];
+        const tagPromises = tags.map(async tag => {
+            const existingTag = await prisma.tag.findUnique({
+                where: {
+                    name: tag
+                }
+            });
+            if (!existingTag) {
+                const newTag = await prisma.tag.create({ data: { name: tag } });
+                tagIds.push(newTag.id)
+            } else {
+                tagIds.push(existingTag.id)
+            }
+        });
+        await Promise.all(tagPromises);
+
+        return tagIds
     } catch (err) {
         errorHandler(err, req, res);
     }
@@ -100,5 +135,6 @@ module.exports = {
     index,
     show,
     update,
-    destroy
+    destroy,
+    storeFromPost
 }

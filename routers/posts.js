@@ -10,15 +10,19 @@ const {
     destroy
 } = require('../controllers/posts');
 
-// Rotte di /posts
+const multer = require("multer");
+const uploader = multer({ dest: "public/img" });
 
 const validator = require('../middlewares/validator.js');
 const { postData } = require('../validations/posts.js')
 const { slugCheck } = require('../validations/generics.js')
 
-router.use('/', loggedUsers);
 
-router.post('/', validator(postData), store);
+// Rotte di /posts
+
+//! DISATTIVATO: router.use('/', loggedUsers);
+
+router.post('/', uploader.single("image"), validator(postData), store);
 router.get('/', index);
 
 router.use('/:slug', validator(slugCheck))

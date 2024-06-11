@@ -17,13 +17,13 @@ const postData = {
             options: { min: 3 }
         }
     },
-    image: {
-        in: ["body"],
-        isString: {
-            errorMessage: "Il campo immagine dev'essere una stringa",
-            bail: true
-        },
-    },
+    // image: {
+    //     in: ["body"],
+    //     isString: {
+    //         errorMessage: "Il campo immagine dev'essere una stringa",
+    //         bail: true
+    //     },
+    // },
     published: {
         in: ["body"],
         isBoolean: {

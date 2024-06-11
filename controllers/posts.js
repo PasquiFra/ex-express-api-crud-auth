@@ -1,42 +1,61 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+//importo le funzioni di read e write in functions.js
+const { deleteFile } = require('../utils/fileSystem.js');
+
 const errorHandler = require('../middlewares/errorHandler');
 const slugger = require("../utils/slugger");
 const getUserId = require("../utils/getUserInfo");
 
+const { storeFromPost } = require("../controllers/tags.js");
+
 const store = async (req, res) => {
 
-    const { title, image, content, categoryId, tags } = req.body
+    const { title, image, content, categoryId, tags, userId } = req.body // TODO: aggiunto userId provvisoriamente
     try {
 
         //cerco lo userId associato all'email
-        const { email } = req.user
-        const userId = await getUserId(email)
+        //!DISATTIVATO: validazione id utente tramite token
+        // const { email } = req.user
+        // const userId = await getUserId(email)
 
         // aggiungo un componente che si occuperà di creare uno slug unico
-        const slug = await slugger(title)
+        const slug = await slugger(title);
+        const tagIds = await storeFromPost(req, res, tags);
 
-        const data = {
+        if (!req.file || !req.file.mimetype.includes('image')) {
+            req.file?.filename && deleteFile(req.file.filename);
+            throw new Error("Image is missing or it is not an image file.", 400)
+        }
+
+        const postData = {
             title,
             slug,
-            image,
+            image: req.file.filename,
             content,
             published: req.body.published ? true : false,
-            tags: {
-                connect: tags.map(id => ({ id }))
-            },
-            userId: userId
+            userId: parseInt(userId)
         }
         if (categoryId) {
-            data.categoryId = categoryId;
+            postData.categoryId = parseInt(categoryId);
         }
 
-        const post = await prisma.post.create({ data })
+        const post = await prisma.post.create({
+            data: {
+                ...postData,
+                tags: {
+                    connect: tagIds.map(tagId => ({ id: tagId }))
+                }
+            }
+        })
 
         res.status(200).send(post);
 
     } catch (err) {
+        if (!req.file || !req.file.mimetype.includes('image')) {
+            req.file?.filename && deleteFile(req.file.filename);
+        }
         errorHandler(err, req, res);
     }
 }
@@ -199,17 +218,19 @@ const destroy = async (req, res) => {
         const slug = req.params.slug
 
         // cerco il post da cancellare e prendo il suo userId
-        const postToChange = await prisma.post.findUnique({ where: { slug: slug } });
-        const postToChangeUserID = postToChange.userId
+        const postToDelete = await prisma.post.findUnique({ where: { slug: slug } });
+        const postToDeleteUserID = postToDelete.userId
 
         //cerco lo userId associato all'email
         const { email } = req.user
         const loggedUserId = await getUserId(email)
 
         //! verifico che lo userId del post da cambiare corrisponda allo userId dell'utente loggato
-        if (loggedUserId != postToChangeUserID) {
+        if (loggedUserId != postToDeleteUserID) {
             throw new Error("Non sei autorizzato a cancellare questo post", 405)
         }
+
+        deleteFile(postToDelete.image);
 
         await prisma.post.delete({ where: { slug } })
         res.json(`Post con slug ${slug} eliminato con successo.`);
