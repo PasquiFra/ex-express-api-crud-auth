@@ -11,6 +11,7 @@ const getUserId = require("../utils/getUserInfo");
 const { storeFromPost } = require("../controllers/tags.js");
 
 const store = async (req, res) => {
+    console.log("arrivato")
 
     const { title, image, content, categoryId, tags, userId } = req.body // TODO: aggiunto userId provvisoriamente
     try {
@@ -28,6 +29,7 @@ const store = async (req, res) => {
             req.file?.filename && deleteFile(req.file.filename);
             throw new Error("Image is missing or it is not an image file.", 400)
         }
+
 
         const postData = {
             title,
@@ -53,7 +55,8 @@ const store = async (req, res) => {
         res.status(200).send(post);
 
     } catch (err) {
-        if (!req.file || !req.file.mimetype.includes('image')) {
+        console.log("ho un errore")
+        if (req.file || req.file.mimetype.includes('image')) {
             req.file?.filename && deleteFile(req.file.filename);
         }
         errorHandler(err, req, res);

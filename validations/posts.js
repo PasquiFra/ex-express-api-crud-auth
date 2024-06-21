@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const postData = {
+
     title: {
         in: ['body'],
         isString: {
@@ -39,10 +40,6 @@ const postData = {
     },
     categoryId: {
         in: ["body"],
-        isInt: {
-            errorMessage: "L'id della categoria dev'essere un numero intero",
-            bail: true
-        },
         custom: {
             options: async (idToCheck) => {
                 const categoryId = parseInt(idToCheck);
