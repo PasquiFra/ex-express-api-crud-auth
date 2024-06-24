@@ -142,7 +142,6 @@ const index = async (req, res) => {
 }
 
 const show = async (req, res) => {
-
     try {
         const slug = req.params.slug;
         const post = await prisma.post.findUnique({
