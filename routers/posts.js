@@ -20,10 +20,11 @@ const { slugCheck } = require('../validations/generics.js')
 
 // Rotte di /posts
 
-//! DISATTIVATO: router.use('/', loggedUsers);
+router.get('/', index);
+
+router.use('/', loggedUsers);
 
 router.post('/', uploader.single("image"), validator(postData), store);
-router.get('/', index);
 
 router.use('/:slug', validator(slugCheck))
 

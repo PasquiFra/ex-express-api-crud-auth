@@ -55,9 +55,9 @@ const storeFromPost = async (req, res, tags) => {
 }
 
 const index = async (req, res) => {
-
     try {
         const tags = await prisma.tag.findMany();
+        //console.log("entrato tags", tags)
         res.json(tags);
     } catch (err) {
         errorHandler(err, req, res);

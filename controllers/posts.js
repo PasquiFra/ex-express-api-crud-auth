@@ -11,15 +11,15 @@ const getUserId = require("../utils/getUserInfo");
 const { storeFromPost } = require("../controllers/tags.js");
 
 const store = async (req, res) => {
-    console.log("arrivato")
 
-    const { title, image, content, categoryId, tags, userId } = req.body // TODO: aggiunto userId provvisoriamente
+    const { title, image, content, categoryId, tags } = req.body
     try {
-
         //cerco lo userId associato all'email
-        //!DISATTIVATO: validazione id utente tramite token
-        // const { email } = req.user
-        // const userId = await getUserId(email)
+        // validazione id utente tramite token
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(" ")[1];
+
+        const userId = await getUserId(token)
 
         // aggiungo un componente che si occuperà di creare uno slug unico
         const slug = await slugger(title);
@@ -55,7 +55,7 @@ const store = async (req, res) => {
         res.status(200).send(post);
 
     } catch (err) {
-        console.log("ho un errore")
+        console.log("ho un errore", err)
         if (req.file || req.file.mimetype.includes('image')) {
             req.file?.filename && deleteFile(req.file.filename);
         }
@@ -215,7 +215,6 @@ const update = async (req, res) => {
 
 
 const destroy = async (req, res) => {
-
     try {
         const slug = req.params.slug
 
@@ -224,8 +223,11 @@ const destroy = async (req, res) => {
         const postToDeleteUserID = postToDelete.userId
 
         //cerco lo userId associato all'email
-        const { email } = req.user
-        const loggedUserId = await getUserId(email)
+        // validazione id utente tramite token
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(" ")[1];
+
+        const loggedUserId = await getUserId(token)
 
         //! verifico che lo userId del post da cambiare corrisponda allo userId dell'utente loggato
         if (loggedUserId != postToDeleteUserID) {

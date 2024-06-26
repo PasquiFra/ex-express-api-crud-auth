@@ -33,15 +33,21 @@ const registerController = async (req, res) => {
 }
 const loginController = async (req, res) => {
     try {
+
         const { email, password } = req.body
+
+        console.log(email, password)
 
         const userLogin = await prisma.user.findUnique({
             where: { email: email }
         })
 
+
         if (!userLogin) {
             throw new Error("email o password non corretta", 400)
         }
+
+        console.log("utente trovato", userLogin)
 
         const isPasswordCorrect = await comparePassword(password, userLogin.password)
 
